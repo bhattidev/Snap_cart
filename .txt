@@ -1,3 +1,0 @@
-imran5244513_db_user
-NR2JI6Fm19kDazRi
-mongodb+srv://imran5244513_db_user:NR2JI6Fm19kDazRi@cluster0.if0yil9.mongodb.net/
