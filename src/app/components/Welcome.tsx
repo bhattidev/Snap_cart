@@ -2,7 +2,7 @@
 import { ArrowRight, Bike, ShoppingBasket } from "lucide-react";
 import { motion } from "motion/react";
 type propType = {
-  nextStep: (s: Number) => void;
+  nextStep: (s: number) => void;
 };
 export default function Welcome({ nextStep }: propType) {
   return (
