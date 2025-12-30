@@ -29,13 +29,10 @@ const RegisterForm = ({ backStep }: Props) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const router = useRouter();
-
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       await axios.post("/api/auth/register", {
         name,
@@ -154,22 +151,22 @@ const RegisterForm = ({ backStep }: Props) => {
           OR
           <span className="flex-1 h-px bg-gray-200"></span>
         </div>
-
-        {/* Google */}
-        <button
-          type="button"
-          className="hover:cursor-pointer w-full flex items-center justify-center gap-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-xl text-gray-700 font-medium transition-all duration-200"
-          onClick={() => signIn("google")}
-        >
-          <Image
-            src={googleLogo}
-            alt="Google Logo"
-            width={20}
-            style={{ height: "auto" }}
-          />
-          Continue with Google
-        </button>
       </motion.form>
+
+      {/* Google */}
+      <button
+        type="button"
+        className="max-w-sm mt-5 hover:cursor-pointer w-full flex items-center justify-center gap-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-xl text-gray-700 font-medium transition-all duration-200"
+        onClick={() => signIn("google", { callbackUrl: "/" })}
+      >
+        <Image
+          src={googleLogo}
+          alt="Google Logo"
+          width={20}
+          style={{ height: "auto" }}
+        />
+        Continue with Google
+      </button>
 
       {/* Login */}
       <p
