@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import connectDB from "@/lib/db";
 import User from "@/models/user.model";
-import { unwatchFile } from "fs";
 import { redirect } from "next/navigation";
 import EditeRoleMobile from "./components/EditeRoleMobile";
 import Nav from "./components/Nav";
@@ -14,14 +13,15 @@ const Home = async () => {
     redirect("/login");
   }
   const inComplete =
-    !user.mobile || !user.role || (!user.mobile && user.role == "user");
+    !user.mobile || !user.role || (!user.mobile && user.role == "User");
   if (inComplete) {
     return <EditeRoleMobile />;
   }
+  const plainUser = JSON.parse(JSON.stringify(user));
 
   return (
     <>
-      <Nav user={user} />
+      <Nav user={plainUser} />
     </>
   );
 };
