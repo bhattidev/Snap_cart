@@ -2,11 +2,13 @@
 
 import axios from "axios";
 import { ArrowRight, Bike, UserCog, UserIcon } from "lucide-react";
-import { motion } from "motion/react";
-import { redirect } from "next/navigation";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const EditeRoleMobile = () => {
+const EditRoleMobile = () => {
+  const router = useRouter();
+
   const roles = [
     { id: "admin", label: "Admin", icon: UserCog },
     { id: "user", label: "User", icon: UserIcon },
@@ -15,19 +17,30 @@ const EditeRoleMobile = () => {
 
   const [selectRole, setSelectRole] = useState("");
   const [mobile, setMobile] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const isValidMobile = mobile.length >= 11;
-  const handleEdite = async () => {
+  const isValidMobile = /^03\d{9}$/.test(mobile);
+
+  const handleEdit = async () => {
+    if (!selectRole || !isValidMobile) return;
+
     try {
-      const result = await axios.post("/api/user/edit-role-mobile", {
+      setLoading(true);
+
+      await axios.post("/api/user/edit-role-mobile", {
         role: selectRole,
         mobile,
       });
-      redirect("/");
+
+      router.push("/");
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <div className="flex flex-col items-center min-h-screen p-6 w-full">
       <motion.h1
@@ -47,7 +60,7 @@ const EditeRoleMobile = () => {
           return (
             <motion.div
               key={role.id}
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setSelectRole(role.id)}
               className={`flex flex-col items-center justify-center w-48 h-44 rounded-2xl border-2 cursor-pointer transition-all
                 ${
@@ -85,19 +98,25 @@ const EditeRoleMobile = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        disabled={!selectRole || !isValidMobile}
-        onClick={() => handleEdite()}
+        disabled={!selectRole || !isValidMobile || loading}
+        onClick={handleEdit}
         className={`w-60 mt-10 inline-flex items-center justify-center gap-2 py-3 rounded-2xl font-semibold transition
           ${
-            selectRole && isValidMobile
+            selectRole && isValidMobile && !loading
               ? "bg-green-600 hover:bg-green-700 text-white"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
       >
-        Go to Home <ArrowRight />
+        {loading ? (
+          "Please wait..."
+        ) : (
+          <>
+            Go to Home <ArrowRight />
+          </>
+        )}
       </motion.button>
     </div>
   );
 };
 
-export default EditeRoleMobile;
+export default EditRoleMobile;
