@@ -15,29 +15,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials, request) {
         try {
           await connectDB();
-          
+
           if (!credentials?.email || !credentials?.password) {
             throw new Error("Email and password are required");
           }
-          
+
           const email = credentials.email as string;
           const password = credentials.password as string;
-          
+
           const user = await User.findOne({ email });
           if (!user) {
             throw new Error("Invalid email or password");
           }
-          
+
           // Check if user has a password (OAuth users might not have one)
           if (!user.password) {
-            throw new Error("Please sign in with Google or reset your password");
+            throw new Error(
+              "Please sign in with Google or reset your password"
+            );
           }
-          
+
           const isMatch = await bcrypt.compare(password, user.password);
           if (!isMatch) {
             throw new Error("Invalid email or password");
           }
-          
+
           return {
             id: user._id.toString(),
             email: user.email,
@@ -63,7 +65,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           if (!user.email) {
             return false;
           }
-          
+
           let dbUser = await User.findOne({ email: user.email });
 
           if (!dbUser) {
@@ -74,7 +76,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               role: "user",
             });
           }
-          
+
           user.id = dbUser._id.toString();
           user.role = dbUser.role;
         } catch (error) {
@@ -84,12 +86,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true;
     },
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
         token.role = user.role;
+      }
+      if (trigger == "update") {
+        token.role = session.role;
       }
       return token;
     },

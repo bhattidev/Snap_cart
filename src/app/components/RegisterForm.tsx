@@ -46,18 +46,35 @@ const RegisterForm = ({ backStep }: Props) => {
 
       if (response.status === 201) {
         // Auto login after successful registration
-        const loginResult = await signIn("credentials", {
-          email,
-          password,
-          redirect: false,
-        });
+        try {
+          const loginResult = await signIn("credentials", {
+            email,
+            password,
+            redirect: false,
+          });
 
-        if (loginResult?.ok) {
-          router.push("/");
-          router.refresh();
-        } else {
-          // Registration successful but login failed, redirect to login page
-          router.push("/login");
+          if (loginResult?.ok) {
+            // Force a full page reload to ensure session is properly loaded
+            window.location.href = "/";
+          } else {
+            // Registration successful but login failed
+            const errorMsg = loginResult?.error === "CredentialsSignin" 
+              ? "Registration successful, but auto-login failed. Please login manually."
+              : loginResult?.error || "Registration successful, but auto-login failed. Please login manually.";
+            setError(errorMsg);
+            setLoading(false);
+            // Redirect to login after showing error
+            setTimeout(() => {
+              router.push("/login");
+            }, 3000);
+          }
+        } catch (loginError: any) {
+          console.error("Auto-login error:", loginError);
+          setError("Registration successful, but auto-login failed. Please login manually.");
+          setLoading(false);
+          setTimeout(() => {
+            router.push("/login");
+          }, 3000);
         }
       }
     } catch (error: any) {
