@@ -7,46 +7,61 @@ export async function POST(request: NextRequest) {
   await connectDB();
   try {
     const { name, email, password } = await request.json();
-    const existUser = await User.findOne({ email });
-    if (existUser) {
+
+    // Validate input
+    if (!name || !email || !password) {
       return NextResponse.json(
-        { message: "Email already exist" },
+        { message: "All fields are required" },
         { status: 400 }
       );
     }
-    if (password.length < 6) {
+
+    // Check if user already exists
+    const existUser = await User.findOne({ email });
+    if (existUser) {
       return NextResponse.json(
-        {
-          message: "Password must be atleast 6 character",
-        },
-        {
-          status: 400,
-        }
+        { message: "Email already exists" },
+        { status: 400 }
       );
     }
+
+    // Check password length
+    if (password.length < 6) {
+      return NextResponse.json(
+        { message: "Password must be at least 6 characters" },
+        { status: 400 }
+      );
+    }
+
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
+      role: "user", // default role
     });
-    return NextResponse.json({ user }, { status: 200 });
-  } catch (error) {
+
+    // Return success - client will handle login
     return NextResponse.json(
-      {
-        message: `Register Error ${error}`,
+      { 
+        message: "User registered successfully", 
+        user: {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
       },
-      {
-        status: 500,
-      }
+      { status: 201 }
+    );
+  } catch (error: any) {
+    console.error("Register Error:", error);
+    return NextResponse.json(
+      { message: error.message || "Registration failed" },
+      { status: 500 }
     );
   }
 }
-
-// api/auth/register
-// db connect
-// name, email, password
-// email check
-// password check 6 character
-// password hash
-// user create

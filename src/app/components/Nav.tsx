@@ -20,7 +20,7 @@ interface IUser {
   name: string;
   email: string;
   mobile: string;
-  role: "User" | "Delivery Boy" | "Admin";
+  role: "user" | "deliveryBoy" | "admin";
   image?: string;
 }
 

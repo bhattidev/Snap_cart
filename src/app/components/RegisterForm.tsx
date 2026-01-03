@@ -29,27 +29,40 @@ const RegisterForm = ({ backStep }: Props) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
+  
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
+    
     try {
-      await axios.post("/api/auth/register", {
+      const response = await axios.post("/api/auth/register", {
         name,
         email,
         password,
       });
 
-      // Optional: auto login after register
-      // await signIn("credentials", {
-      //   email,
-      //   password,
-      //   redirect: false,
-      // });
+      if (response.status === 201) {
+        // Auto login after successful registration
+        const loginResult = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
 
-      router.push("/login");
-    } catch (error) {
-      console.log(error);
+        if (loginResult?.ok) {
+          router.push("/");
+          router.refresh();
+        } else {
+          // Registration successful but login failed, redirect to login page
+          router.push("/login");
+        }
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Registration failed. Please try again.";
+      setError(errorMessage);
       setLoading(false);
     }
   };
@@ -131,6 +144,13 @@ const RegisterForm = ({ backStep }: Props) => {
             {showPassword ? <EyeOff /> : <EyeIcon />}
           </span>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Register Button */}
         <button
