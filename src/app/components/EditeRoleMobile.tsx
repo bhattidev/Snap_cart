@@ -5,10 +5,10 @@ import { ArrowRight, Bike, UserCog, UserIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 
 const EditRoleMobile = () => {
   const router = useRouter();
-
   const roles = [
     { id: "admin", label: "Admin", icon: UserCog },
     { id: "user", label: "User", icon: UserIcon },
@@ -18,6 +18,7 @@ const EditRoleMobile = () => {
   const [selectRole, setSelectRole] = useState("");
   const [mobile, setMobile] = useState("");
   const [loading, setLoading] = useState(false);
+  const { update } = useSession();
 
   const isValidMobile = /^03\d{9}$/.test(mobile);
 
@@ -31,8 +32,10 @@ const EditRoleMobile = () => {
         role: selectRole,
         mobile,
       });
+      await update({ role: selectRole });
 
-      router.push("/");
+      // Force a full page reload to refresh session
+      window.location.href = "/";
     } catch (error) {
       console.error(error);
       alert("Something went wrong");

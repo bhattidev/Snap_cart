@@ -20,7 +20,7 @@ interface IUser {
   name: string;
   email: string;
   mobile: string;
-  role: "User" | "Delivery Boy" | "Admin";
+  role: "user" | "deliveryBoy" | "admin";
   image?: string;
 }
 
@@ -64,23 +64,33 @@ const Nav = ({ user }: { user?: IUser }) => {
       </form>
 
       <div className="flex items-center gap-3 md:gap-6 relative">
-        <div
-          onClick={() => setSearchBar((pre) => !pre)}
-          className="relative bg-white rounded-full w-11 h-11 flex items-center justify-center shadow-md hover:scale-105 transition md:hidden"
-        >
-          <Search className="text-green-600 w-6 h-6" />
-        </div>
+        {user.role == "user" && (
+          <>
+            <div
+              onClick={() => setSearchBar((pre) => !pre)}
+              className="relative bg-white rounded-full w-11 h-11 flex items-center justify-center shadow-md hover:scale-105 transition md:hidden"
+            >
+              <Search className="text-green-600 w-6 h-6" />
+            </div>
 
-        {/* CART */}
-        <Link
-          href="/cart"
-          className="relative bg-white rounded-full w-11 h-11 flex items-center justify-center shadow-md hover:scale-105 transition"
-        >
-          <ShoppingCartIcon className="text-green-600 w-6 h-6" />
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-semibold shadow">
-            0
-          </span>
-        </Link>
+            {/* CART */}
+            <Link
+              href="/cart"
+              className="relative bg-white rounded-full w-11 h-11 flex items-center justify-center shadow-md hover:scale-105 transition"
+            >
+              <ShoppingCartIcon className="text-green-600 w-6 h-6" />
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-semibold shadow">
+                0
+              </span>
+            </Link>
+          </>
+        )}
+
+        {user.role == "admin" && (
+          <>
+            <div></div>
+          </>
+        )}
 
         {/* USER AVATAR */}
         <div ref={profileDropDown} className="relative">

@@ -15,8 +15,7 @@ const Home = async () => {
   if (!user) {
     redirect("/login");
   }
-  const inComplete =
-    !user.mobile || !user.role || (!user.mobile && user.role == "User");
+  const inComplete = !user.mobile || !user.role;
   if (inComplete) {
     return <EditeRoleMobile />;
   }
@@ -25,9 +24,9 @@ const Home = async () => {
   return (
     <>
       <Nav user={plainUser} />
-      {user.role == "user" ? (
+      {user.role === "user" ? (
         <UserDashboard />
-      ) : user.role == "admin" ? (
+      ) : user.role === "admin" ? (
         <AdminDashboard />
       ) : (
         <DeliveryBoy />

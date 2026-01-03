@@ -21,24 +21,35 @@ const LoginForm = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const router = useRouter();
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-    if (result?.error) {
-      console.log(result.error);
+      if (result?.error) {
+        setError(result.error === "CredentialsSignin" ? "Invalid email or password" : result.error);
+        setLoading(false);
+      } else if (result?.ok) {
+        router.push("/");
+        router.refresh();
+      } else {
+        setError("Login failed. Please try again.");
+        setLoading(false);
+      }
+    } catch (error) {
+      setError("An unexpected error occurred. Please try again.");
       setLoading(false);
-    } else {
-      router.push("/"); // change if needed
     }
   };
 
@@ -95,6 +106,13 @@ const LoginForm = () => {
             {showPassword ? <EyeOff /> : <EyeIcon />}
           </span>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Login Button */}
         <button
