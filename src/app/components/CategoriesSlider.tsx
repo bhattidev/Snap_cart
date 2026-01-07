@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { motion } from "motion/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 const categories = [
   {
     id: 1,
@@ -53,8 +53,9 @@ const categories = [
   { id: 12, name: "Household Cleaning", icon: SprayCan, bg: "bg-sky-100" },
 ];
 const CategoriesSlider = () => {
+  const [showLeft, setShowLeft] = useState<Boolean>();
+  const [showRight, setShowRight] = useState<Boolean>();
   const scrollRef = useRef<HTMLDivElement>(null);
-
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
 
@@ -67,9 +68,31 @@ const CategoriesSlider = () => {
   };
   const checkScroll = () => {
     if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    setShowLeft(scrollLeft > 0);
+    setShowRight(scrollLeft + clientWidth <= scrollWidth - 5);
   };
   useEffect(() => {
+    const autoScroll = setInterval(() => {
+      if (!scrollRef.current) return;
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      if (scrollLeft + clientWidth >= scrollWidth - 5) {
+        scrollRef.current.scrollTo({
+          left: 0,
+          behavior: "smooth",
+        });
+      } else {
+        scrollRef.current.scrollBy({
+          left: 300,
+          behavior: "smooth",
+        });
+      }
+    }, 4000);
+    return () => clearInterval(autoScroll);
+  }, []);
+  useEffect(() => {
     scrollRef.current?.addEventListener("scroll", checkScroll);
+    checkScroll();
     return () => removeEventListener("scroll", checkScroll);
   }, []);
   return (
@@ -83,14 +106,17 @@ const CategoriesSlider = () => {
       <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-6 text-center">
         🛒 Shop by category
       </h2>
-      <button
-        onClick={() => scroll("left")}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg transition-all hover:bg-green-100 rounded-full w-10 h-10 flex items-center justify-center"
-      >
-        <ChevronLeft className="w-6 h-6 text-green-700" />
-      </button>
+      {showLeft && (
+        <button
+          onClick={() => scroll("left")}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg transition-all hover:bg-green-100 rounded-full w-10 h-10 flex items-center justify-center"
+        >
+          <ChevronLeft className="w-6 h-6 text-green-700" />
+        </button>
+      )}
+
       <div
-        className="flex gap-6 overflow-x-auto px-10 pb-4 scrollbar-hiden scroll-smooth"
+        className="flex gap-6 overflow-x-auto px-10 pb-4 scrollbar-hidden scroll-smooth"
         ref={scrollRef}
       >
         {categories.map((category) => {
@@ -114,12 +140,14 @@ const CategoriesSlider = () => {
           );
         })}
       </div>
-      <button
-        onClick={() => scroll("right")}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg transition-all hover:bg-green-100 rounded-full w-10 h-10 flex items-center justify-center"
-      >
-        <ChevronRight className="w-6 h-6 text-green-700" />
-      </button>
+      {showRight && (
+        <button
+          onClick={() => scroll("right")}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg transition-all hover:bg-green-100 rounded-full w-10 h-10 flex items-center justify-center"
+        >
+          <ChevronRight className="w-6 h-6 text-green-700" />
+        </button>
+      )}
     </motion.div>
   );
 };
