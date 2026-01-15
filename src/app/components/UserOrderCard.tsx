@@ -1,7 +1,18 @@
 "use client";
 import { IOrder } from "@/models/order.model";
+import {
+  ChevronDown,
+  ChevronUp,
+  CreditCard,
+  MapPin,
+  Package,
+  Truck,
+} from "lucide-react";
 import { motion } from "motion/react";
+import Image from "next/image";
+import { useState } from "react";
 const UserOrderCard = ({ order }: { order: IOrder }) => {
+  const [expanded, setExpanded] = useState(false);
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
@@ -14,6 +25,7 @@ const UserOrderCard = ({ order }: { order: IOrder }) => {
         return "bg-gray-100 text-gray-700 border-gray-300";
     }
   };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -26,7 +38,7 @@ const UserOrderCard = ({ order }: { order: IOrder }) => {
           <h3 className="text-lg font-semibold text-gray-800">
             order:{" "}
             <span className="text-green-700 font-bold">
-              #{order?._id?.toString().slice(-6)}
+              #{order._id?.toString().slice(-6)}
             </span>
           </h3>
           <p className="text-xs text-gray-500 mt-1">
@@ -44,8 +56,107 @@ const UserOrderCard = ({ order }: { order: IOrder }) => {
             {order.isPaid ? "Paid" : "Unpaid"}
           </span>
           <span
-            className={`px-3 py-1 text-xs font-semibold border rounded-full`}
-          ></span>
+            className={`px-3 py-1 text-xs font-semibold border rounded-full ${getStatusColor(
+              order.status
+            )}`}
+          >
+            {order.status
+              ? order.status.charAt(0).toUpperCase() + order.status.slice(1)
+              : "Pending"}
+          </span>
+        </div>
+      </div>
+      <div className="p-5 space-y-4">
+        {order.paymentMethod === "cod" ? (
+          <div className="flex items-center gap-2 text-gray-700 text-sm">
+            <Truck size={16} className="text-green-600" />
+            Cash on Delivery
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-gray-700 text-sm">
+            <CreditCard size={16} className="text-green-600" />
+            Online Payment
+          </div>
+        )}
+        <div className="flex items-center gap-2 text-gray-700 text-sm">
+          <MapPin size={16} className="text-green-600" />
+          <span className="truncate">{order.address.fullAddress}</span>
+        </div>
+        <div className="border-t border-gray-200 pt-3">
+          <button
+            onClick={() => {
+              setExpanded((pre) => !pre);
+            }}
+            className="w-full flex justify-between items-center text-sm font-medium text-gray-700 hover:text-green-700 transition"
+          >
+            <span className="flex items-center gap-2">
+              <Package size={16} className="text-green-600" />
+              {expanded
+                ? "Hide Order Items"
+                : `View ${order.items.length} items`}
+            </span>
+            {expanded ? (
+              <ChevronUp size={16} className="text-green-600" />
+            ) : (
+              <ChevronDown size={16} className="text-green-600" />
+            )}
+          </button>
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{
+              height: expanded ? "auto" : 0,
+              opacity: expanded ? 1 : 0,
+            }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-3 space-y-3">
+              {order.items.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center bg-gray-50 rounded-xl px-3 py-2 hover:bg-gray-100 transition"
+                >
+                  <div className="flex items-center gap-3">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      width={48}
+                      height={48}
+                      className="rounded-lg object-cover border border-gray-200"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-gray-800">
+                        {item.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {item.quantity} x {item.unit}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800">
+                    Rs. {Number(item.price) * item.quantity}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+        <div className="border-t pt-3 flex justify-between items-center text-sm font-semibold text-gray-800">
+          <div className="flex items-center gap-2 text-gray-700 text-sm">
+            <Truck size={16} className="text-green-600" />
+            <span>
+              Delivery :{" "}
+              <span className="text-green-700 font-semibold">
+                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+              </span>
+            </span>
+          </div>
+          <div>
+            Total Amount :{" "}
+            <span className="text-green-700 font-semibold">
+              Rs. {order.totalAmount}
+            </span>
+          </div>
         </div>
       </div>
     </motion.div>
