@@ -3,8 +3,13 @@ import { Leaf, ShoppingBasket, Smartphone, Truck } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+// import { getSocket } from "@/lib/socket";
 
 const HeroSection = () => {
+  // useEffect(() => {
+  //   let socket = getSocket();
+  // }, []);
+
   const slides = [
     {
       id: 1,
